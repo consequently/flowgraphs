@@ -1,0 +1,394 @@
+%%% Circuit-Example.tex
+%%% version 1.0, July 10, 2017
+%%%
+%%% A minimal example for typesetting proof circuits using LaTeX and tikz.
+%%%
+%%% Greg Restall / greg@consequently.org 
+%%% 
+%%% Depedencies: 
+%%% tikz, available at https://ctan.org/pkg/pgf
+%%% ebproof, avaialble at https://ctan.org/pkg/ebproof
+%%%
+%%% Questions? Contact Greg Restall  / http://consequently.org
+%%%
+\documentclass{article}
+%%
+\usepackage{fancyvrb}
+\RecustomVerbatimEnvironment{Verbatim}{Verbatim}{frame=lines,fontsize=\small,framesep=1.5ex}
+\usepackage[colorlinks,urlcolor=Blue]{hyperref}
+%%
+\usepackage{tikz}
+\definecolor{Red}{rgb}{0.66,0,0}
+\definecolor{Green}{rgb}{0,0.5,0}
+\definecolor{Blue}{rgb}{0,0,0.66}
+%%%
+%%% \tm{atom}{label} typesets "atom" in math mode, and 
+%%% assigns a tikz node "node" which can later be used in
+%%% a tikz diagram.
+%%%
+\newcommand{\tm}[2]{%
+  \ensuremath{\mathord{%
+  \tikz[remember picture,baseline=(#2.base)]%
+  \node[inner sep=.5pt,outer sep=.5pt](#2){\({#1}\)};%
+}}%
+}%
+%%%
+%%% flowgraph is a tikz environment for drawing 
+%%% linkages between nodes defined by "\tm" entries.
+%%%
+%%% The default arrow style is Red, thick, and with a stealth arrowhead 
+%%%
+\tikzstyle{flowgraph} = [overlay, remember picture,
+                         Red, thick, ->,
+                         >=stealth, shorten >=0.5pt]
+%%%
+\usepackage{ebproof}
+%%%
+%%%
+\begin{document}
+\title{Typesetting Flow Graphs with \texttt{tikz}}
+\author{Greg Restall}
+\maketitle
+\noindent%
+These notes attempt to explain how to use the \LaTeX\ package \texttt{tikz} to typeset flow graphs, used for indicating the flow of information in different kinds of proofs. The code can be downloaded from \url{https://github.com/consequently/flowgraphs}.
+
+In your \LaTeX\ document, to set things up, load \texttt{tikz} in the preamble and define some colours.
+\begin{Verbatim}
+\usepackage{tikz}
+\definecolor{Red}{rgb}{0.66,0,0}
+\definecolor{Green}{rgb}{0,0.5,0}
+\definecolor{Blue}{rgb}{0,0,0.66}
+\end{Verbatim}
+In this document, I will typeset some proofs and derivations. For that, I'll use \texttt{ebproof}, so I need to load that package too:
+\begin{Verbatim}
+\usepackage{ebproof}
+\end{Verbatim}
+Both \texttt{\href{https://ctan.org/pkg/pgf}{tikz}} and \texttt{\href{https://ctan.org/pkg/ebproof}{ebproof}} are available on \texttt{\href{http://ctan.org}{ctan}}, and they should be already on any reasonably up-to-date \LaTeX\ installation. 
+
+To typeset flow graphs with \texttt{tikz}, you use two definitions. The first, \Verb|\tm| (short for ``a\textbf{t}o\textbf{m}'') defines the nodes for the graph:
+\begin{Verbatim}
+\newcommand{\tm}[2]{%
+  \ensuremath{\mathord{%
+  \tikz[remember picture,baseline=(#2.base)]%
+  \node[inner sep=.5pt,outer sep=.5pt](#2){\({#1}\)};%
+}}%
+}%
+\end{Verbatim}
+\Verb|\tm{p}{p1}| typesets $p$ in math mode, inside a tikz picture, as a node with label \Verb|p1|, which can be used as the source or a target for a link in a graph, typset later in the code.  To typset the links, you use a \texttt{tikzpicture} with the \Verb|flowgraph| style:  
+\begin{Verbatim}
+\tikzstyle{flowgraph} = [overlay, remember picture,
+                         Red, thick, ->,
+                         >=stealth, shorten >=0.5pt]
+\end{Verbatim}
+Such a \texttt{tikzpicture} is typeset as an \emph{overlay} (it is typeset over the other text), and the default links are set in the color \texttt{Red}, with the \texttt{tikz} style \texttt{thick}, as arrows with the ``\texttt{stealth}'' arrowhead, and shortened at the end by a little bit (for clarity). Of course, these defaults can all be overridden. (In the examples below you'll see \texttt{Blue} and \texttt{Green} links, too.)
+\section*{The General Idea}
+You can mark an atom like this \tm{p}{p1}, typesetting it in a small tikz picture, where you remember its node name and location, and do the same with another one like this---\tm{p}{p2}---and then typeset a link from the one to the other. 
+\begin{tikzpicture}[flowgraph]
+\draw (p1) -- (p2); 
+\end{tikzpicture}
+\begin{Verbatim}
+You can mark an atom like this \tm{p}{p1}, typesetting it in a small 
+tikz picture, where you remember its node name and location, and do the 
+same with another one like this---\tm{p}{p2}---and then typeset a link 
+from the one to the other. 
+\begin{tikzpicture}[flowgraph]
+\draw (p1) -- (p2); 
+\end{tikzpicture}
+\end{Verbatim}
+Here are some concrete examples of using flow graphs in proofs.
+
+\section*{Example 1: In an Array}
+\[
+\begin{array}{c}
+\tm{p}{pp}\land(\tm{q}{qp}\lor \tm{r}{rp})\\[0.66cm]
+(\tm{p}{p1c}\land \tm{q}{qc})\lor(\tm{p}{p2c}\land \tm{r}{rc})
+\end{array}
+\]
+\begin{tikzpicture}[flowgraph]
+\draw (pp) -- (p1c); \draw (pp) -- (p2c);
+\draw (qp) -- (qc);  \draw (rp) -- (rc);
+\end{tikzpicture}
+%%
+\begin{Verbatim}
+\[
+\begin{array}{c}
+\tm{p}{pp}\land(\tm{q}{qp}\lor \tm{r}{rp}) \\[0.66cm]
+(\tm{p}{p1c}\land \tm{q}{qc})\lor(\tm{p}{p2c}\land \tm{r}{rc})
+\end{array}
+\]
+\begin{tikzpicture}[flowgraph]
+\draw (pp) -- (p1c); \draw (pp) -- (p2c);
+\draw (qp) -- (qc);  \draw (rp) -- (rc);
+\end{tikzpicture}
+\end{Verbatim}
+\section*{Example 2: In a Natural Deduction Proof}
+% Vertical space to give room for looping links
+\vspace{0.5cm} 
+\[
+\begin{prooftree}[rule margin=.9ex, separation=0.2em]
+\Hypo{p\land(\tm{q}{q1}\lor \tm{r}{r1})}
+\Infer1{\tm{q}{q2}\lor \tm{r}{r2}}
+\Hypo{\tm{p}{p1}\land(q\lor r)}
+\Infer1{\tm{p}{p3}}
+\Hypo{[\tm{q}{q3}]}
+\Infer2{\tm{p}{p5}\land \tm{q}{q4}}
+\Infer1{(\tm{p}{p7}\land \tm{q}{q5})\lor(\tm{p}{p8}\land \tm{r}{r5})}
+\Hypo{\tm{p}{p2}\land(q\lor r)}
+\Infer1{\tm{p}{p4}}
+\Hypo{[\tm{r}{r3}]}
+\Infer2{\tm{p}{p6}\land \tm{r}{r4}}
+\Infer1{(\tm{p}{p9}\land \tm{q}{q6})\lor(\tm{p}{p10}\land \tm{r}{r6})}
+\Infer3{(\tm{p}{p11}\land \tm{q}{q7})\lor(\tm{p}{p12}\land \tm{r}{r7})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=90]
+\draw (p1) -- (p3);  \draw (p3) -- (p5); 
+\draw (p5) -- (p7);  \draw (p7) -- (p11);
+\draw (p2) -- (p4);  \draw (p4) -- (p6);
+\draw (p6) -- (p10); \draw (p8) -- (p12);
+\draw (p10) -- (p12);
+%%
+\begin{scope}[Green]
+\draw (r1) -- (r2); 
+\path (r2) edge[bend left] (r3);
+\draw (r3) -- (r4); \draw (r4) -- (r6);
+\draw (r5) -- (r7); \draw (r6) -- (r7);
+\end{scope}
+%%
+\begin{scope}[Blue]
+\draw (q1) -- (q2);
+\path (q2) edge[bend left] (q3);
+\draw (q3) -- (q4); \draw (q4) -- (q6);
+\draw (q5) -- (q7); \draw (q6) -- (q7);
+\end{scope}
+\end{tikzpicture}%
+Using different colours can help with distinguishing different paths.
+\begin{Verbatim}
+% Vertical space to give room for looping links
+\vspace{0.5cm} 
+\[
+\begin{prooftree}[rule margin=.9ex, separation=0.2em]
+\Hypo{p\land(\tm{q}{q1}\lor \tm{r}{r1})}
+\Infer1{\tm{q}{q2}\lor \tm{r}{r2}}
+\Hypo{\tm{p}{p1}\land(q\lor r)}
+\Infer1{\tm{p}{p3}}
+\Hypo{[\tm{q}{q3}]}
+\Infer2{\tm{p}{p5}\land \tm{q}{q4}}
+\Infer1{(\tm{p}{p7}\land \tm{q}{q5})\lor(\tm{p}{p8}\land \tm{r}{r5})}
+\Hypo{\tm{p}{p2}\land(q\lor r)}
+\Infer1{\tm{p}{p4}}
+\Hypo{[\tm{r}{r3}]}
+\Infer2{\tm{p}{p6}\land \tm{r}{r4}}
+\Infer1{(\tm{p}{p9}\land \tm{q}{q6})\lor(\tm{p}{p10}\land \tm{r}{r6})}
+\Infer3{(\tm{p}{p11}\land \tm{q}{q7})\lor(\tm{p}{p12}\land \tm{r}{r7})}
+\end{prooftree}
+\]
+%% p links
+\begin{tikzpicture}[flowgraph,bend angle=90]
+\draw (p1) -- (p3);  \draw (p3) -- (p5); 
+\draw (p5) -- (p7);  \draw (p7) -- (p11);
+\draw (p2) -- (p4);  \draw (p4) -- (p6);
+\draw (p6) -- (p10); \draw (p8) -- (p12);
+\draw (p10) -- (p12);
+%% q links
+\begin{scope}[Blue]
+\draw (q1) -- (q2);
+\path (q2) edge[bend left] (q3);
+\draw (q3) -- (q4); \draw (q4) -- (q6);
+\draw (q5) -- (q7); \draw (q6) -- (q7);
+\end{scope}
+%% r links
+\begin{scope}[Green]
+\draw (r1) -- (r2); 
+\path (r2) edge[bend left] (r3);
+\draw (r3) -- (r4); \draw (r4) -- (r6);
+\draw (r5) -- (r7); \draw (r6) -- (r7);
+\end{scope}
+\end{tikzpicture}
+\end{Verbatim}
+However, there it is still difficult to follow such a complex flow graph with many different links at play. You can reuse the same derivation code and link up only \emph{some} of the atoms. The new node labels take precedence over the old ones.
+\[
+\begin{prooftree}[rule margin=.9ex, separation=0.2em]
+\Hypo{p\land(\tm{q}{q1}\lor \tm{r}{r1})}
+\Infer1{\tm{q}{q2}\lor \tm{r}{r2}}
+\Hypo{\tm{p}{p1}\land(q\lor r)}
+\Infer1{\tm{p}{p3}}
+\Hypo{[\tm{q}{q3}]}
+\Infer2{\tm{p}{p5}\land \tm{q}{q4}}
+\Infer1{(\tm{p}{p7}\land \tm{q}{q5})\lor(\tm{p}{p8}\land \tm{r}{r5})}
+\Hypo{\tm{p}{p2}\land(q\lor r)}
+\Infer1{\tm{p}{p4}}
+\Hypo{[\tm{r}{r3}]}
+\Infer2{\tm{p}{p6}\land \tm{r}{r4}}
+\Infer1{(\tm{p}{p9}\land \tm{q}{q6})\lor(\tm{p}{p10}\land \tm{r}{r6})}
+\Infer3{(\tm{p}{p11}\land \tm{q}{q7})\lor(\tm{p}{p12}\land \tm{r}{r7})}
+\end{prooftree}
+\]
+Here's the code:
+\begin{tikzpicture}[flowgraph,bend angle=90]
+\draw (p1) -- (p3);  \draw (p3) -- (p5); 
+\draw (p5) -- (p7);  \draw (p7) -- (p11);
+\draw (p2) -- (p4);  \draw (p4) -- (p6);
+\draw (p6) -- (p10); \draw (p8) -- (p12);
+\draw (p10) -- (p12);
+\end{tikzpicture}
+\begin{Verbatim}
+\[
+\begin{prooftree}[rule margin=.9ex, separation=0.2em]
+\Hypo{p\land(\tm{q}{q1}\lor \tm{r}{r1})}
+\Infer1{\tm{q}{q2}\lor \tm{r}{r2}}
+\Hypo{\tm{p}{p1}\land(q\lor r)}
+\Infer1{\tm{p}{p3}}
+\Hypo{[\tm{q}{q3}]}
+\Infer2{\tm{p}{p5}\land \tm{q}{q4}}
+\Infer1{(\tm{p}{p7}\land \tm{q}{q5})\lor(\tm{p}{p8}\land \tm{r}{r5})}
+\Hypo{\tm{p}{p2}\land(q\lor r)}
+\Infer1{\tm{p}{p4}}
+\Hypo{[\tm{r}{r3}]}
+\Infer2{\tm{p}{p6}\land \tm{r}{r4}}
+\Infer1{(\tm{p}{p9}\land \tm{q}{q6})\lor(\tm{p}{p10}\land \tm{r}{r6})}
+\Infer3{(\tm{p}{p11}\land \tm{q}{q7})\lor(\tm{p}{p12}\land \tm{r}{r7})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=90]
+\draw (p1) -- (p3);  \draw (p3) -- (p5); 
+\draw (p5) -- (p7);  \draw (p7) -- (p11);
+\draw (p2) -- (p4);  \draw (p4) -- (p6);
+\draw (p6) -- (p10); \draw (p8) -- (p12);
+\draw (p10) -- (p12);
+\end{tikzpicture}
+\end{Verbatim}
+\section*{Example 3: In a Sequent Derivation}
+\[
+\begin{prooftree}
+\Hypo{\tm{p}{p1}\vdash \tm{p}{p2}}
+\Hypo{\tm{q}{q1}\vdash \tm{q}{q2}}
+\Infer2{\tm{p}{p5},\tm{q}{q3}\vdash \tm{p}{p6}\land \tm{q}{q4}}
+\Hypo{\tm{p}{p3}\vdash \tm{p}{p4}}
+\Hypo{\tm{r}{r1}\vdash \tm{r}{r2}}
+\Infer2{\tm{p}{p7},\tm{r}{r3}\vdash \tm{p}{p8}\land \tm{r}{r4}}
+\Infer2{\tm{p}{p9},\tm{q}{q5}\lor \tm{r}{r5}\vdash \tm{p}{p10}\land \tm{q}{q6},\tm{p}{p11}\land \tm{r}{r6}}
+\Infer1{\tm{p}{p12},\tm{q}{q7}\lor \tm{r}{r7}\vdash (\tm{p}{p13}\land \tm{q}{q8})\lor(\tm{p}{p14}\land \tm{r}{r8})}
+\Infer1{\tm{p}{p15}\land(\tm{q}{q9}\lor \tm{r}{r9})\vdash(\tm{p}{p16}\land \tm{q}{q10})\lor(\tm{p}{p17}\land \tm{r}{r10})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=60]
+%%% p links
+\path (p1) edge[bend left] (p2);
+\path (p3) edge[bend left] (p4);
+\draw (p15) -- (p12); \draw (p12) -- (p9);
+\draw (p9) -- (p5);   \draw (p9) -- (p7);
+\draw (p7) -- (p3);   \draw (p5) -- (p1);
+\draw (p2) -- (p6);   \draw (p6) -- (p10);
+\draw (p10) -- (p13); \draw (p13) -- (p16);
+\draw (p4) -- (p8);   \draw (p8) -- (p11);
+\draw (p11) -- (p14); \draw (p14) -- (p17);
+%%% q links
+\begin{scope}[Blue]
+\path (q1) edge[bend left] (q2);
+\draw (q3) -- (q1); \draw (q5) -- (q3);
+\draw (q7) -- (q5); \draw (q9) -- (q7);
+\draw (q2) -- (q4); \draw (q4) -- (q6);
+\draw (q6) -- (q8); \draw (q8) -- (q10);
+\end{scope}
+%%% r links
+\begin{scope}[Green]
+\path (r1) edge[bend left] (r2);
+\draw (r3) -- (r1); \draw (r5) -- (r3);
+\draw (r7) -- (r5); \draw (r9) -- (r7);
+\draw (r2) -- (r4); \draw (r4) -- (r6);
+\draw (r6) -- (r8); \draw (r8) -- (r10);
+\end{scope}
+\end{tikzpicture}
+\begin{Verbatim}
+\[
+\begin{prooftree}
+\Hypo{\tm{p}{p1}\vdash \tm{p}{p2}}
+\Hypo{\tm{q}{q1}\vdash \tm{q}{q2}}
+\Infer2{\tm{p}{p5},\tm{q}{q3}\vdash \tm{p}{p6}\land \tm{q}{q4}}
+\Hypo{\tm{p}{p3}\vdash \tm{p}{p4}}
+\Hypo{\tm{r}{r1}\vdash \tm{r}{r2}}
+\Infer2{\tm{p}{p7},\tm{r}{r3}\vdash \tm{p}{p8}\land \tm{r}{r4}}
+\Infer2{\tm{p}{p9},\tm{q}{q5}\lor \tm{r}{r5}
+\vdash \tm{p}{p10}\land \tm{q}{q6},\tm{p}{p11}\land \tm{r}{r6}}
+\Infer1{\tm{p}{p12},\tm{q}{q7}\lor \tm{r}{r7}\vdash 
+(\tm{p}{p13}\land \tm{q}{q8})\lor(\tm{p}{p14}\land \tm{r}{r8})}
+\Infer1{\tm{p}{p15}\land(\tm{q}{q9}\lor \tm{r}{r9})
+\vdash(\tm{p}{p16}\land \tm{q}{q10})\lor(\tm{p}{p17}\land \tm{r}{r10})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=60]
+%%%
+\path (p1) edge[bend left] (p2);
+\path (p3) edge[bend left] (p4);
+\draw (p15) -- (p12); \draw (p12) -- (p9);
+\draw (p9) -- (p5);   \draw (p9) -- (p7);
+\draw (p7) -- (p3);   \draw (p5) -- (p1);
+\draw (p2) -- (p6);   \draw (p6) -- (p10);
+\draw (p10) -- (p13); \draw (p13) -- (p16);
+\draw (p4) -- (p8);   \draw (p8) -- (p11);
+\draw (p11) -- (p14); \draw (p14) -- (p17);
+%%%
+\begin{scope}[Blue]
+\path (q1) edge[bend left] (q2);
+\draw (q3) -- (q1); \draw (q5) -- (q3);
+\draw (q7) -- (q5); \draw (q9) -- (q7);
+\draw (q2) -- (q4); \draw (q4) -- (q6);
+\draw (q6) -- (q8); \draw (q8) -- (q10);
+\end{scope}
+%%%
+\begin{scope}[Green]
+\path (r1) edge[bend left] (r2);
+\draw (r3) -- (r1); \draw (r5) -- (r3);
+\draw (r7) -- (r5); \draw (r9) -- (r7);
+\draw (r2) -- (r4); \draw (r4) -- (r6);
+\draw (r6) -- (r8); \draw (r8) -- (r10);
+\end{scope}
+\end{tikzpicture}
+\end{Verbatim}
+Again, the thicket of arrows in over an entire sequent derivation makes a flow graph a little hard to scan. You can reuse the code for the derivation and draw a flow graph on its \emph{endsequent}.
+\[
+\begin{prooftree}
+\Hypo{\tm{p}{p1}\vdash \tm{p}{p2}}
+\Hypo{\tm{q}{q1}\vdash \tm{q}{q2}}
+\Infer2{\tm{p}{p5},\tm{q}{q3}\vdash \tm{p}{p6}\land \tm{q}{q4}}
+\Hypo{\tm{p}{p3}\vdash \tm{p}{p4}}
+\Hypo{\tm{r}{r1}\vdash \tm{r}{r2}}
+\Infer2{\tm{p}{p7},\tm{r}{r3}\vdash \tm{p}{p8}\land \tm{r}{r4}}
+\Infer2{\tm{p}{p9},\tm{q}{q5}\lor \tm{r}{r5}\vdash \tm{p}{p10}\land \tm{q}{q6},\tm{p}{p11}\land \tm{r}{r6}}
+\Infer1{\tm{p}{p12},\tm{q}{q7}\lor \tm{r}{r7}\vdash (\tm{p}{p13}\land \tm{q}{q8})\lor(\tm{p}{p14}\land \tm{r}{r8})}
+\Infer1{\tm{p}{p15}\land(\tm{q}{q9}\lor \tm{r}{r9})\vdash(\tm{p}{p16}\land \tm{q}{q10})\lor(\tm{p}{p17}\land \tm{r}{r10})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=45]
+\path (p15) edge[bend right] (p16);
+\path (p15) edge[bend right] (p17);
+\path (q9)  edge[bend right, Blue] (q10);
+\path (r9)  edge[bend right, Green] (r10);
+\end{tikzpicture}
+\begin{Verbatim}
+\[
+\begin{prooftree}
+\Hypo{\tm{p}{p1}\vdash \tm{p}{p2}}
+\Hypo{\tm{q}{q1}\vdash \tm{q}{q2}}
+\Infer2{\tm{p}{p5},\tm{q}{q3}\vdash \tm{p}{p6}\land \tm{q}{q4}}
+\Hypo{\tm{p}{p3}\vdash \tm{p}{p4}}
+\Hypo{\tm{r}{r1}\vdash \tm{r}{r2}}
+\Infer2{\tm{p}{p7},\tm{r}{r3}\vdash \tm{p}{p8}\land \tm{r}{r4}}
+\Infer2{\tm{p}{p9},\tm{q}{q5}\lor \tm{r}{r5}
+\vdash \tm{p}{p10}\land \tm{q}{q6},\tm{p}{p11}\land \tm{r}{r6}}
+\Infer1{\tm{p}{p12},\tm{q}{q7}\lor \tm{r}{r7}\vdash 
+(\tm{p}{p13}\land \tm{q}{q8})\lor(\tm{p}{p14}\land \tm{r}{r8})}
+\Infer1{\tm{p}{p15}\land(\tm{q}{q9}\lor \tm{r}{r9})
+\vdash(\tm{p}{p16}\land \tm{q}{q10})\lor(\tm{p}{p17}\land \tm{r}{r10})}
+\end{prooftree}
+\]
+\begin{tikzpicture}[flowgraph,bend angle=45]
+\path (p15) edge[bend right] (p16);
+\path (p15) edge[bend right] (p17);
+\path (q9)  edge[bend right, Blue] (q10);
+\path (r9)  edge[bend right, Green] (r10);
+\end{tikzpicture}
+\end{Verbatim}
+
+\end{document}
